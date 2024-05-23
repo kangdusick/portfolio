@@ -252,7 +252,11 @@ public class StatusDictionary : ObservableDictionary<(ELanguageTable status, ESt
     // 타이머를 멈추는 메서드
     public void StopRandomizeKeyTimer()
     {
-        randomizeKeyTimer?.Change(Timeout.Infinite, 0);
+        if (randomizeKeyTimer != null)
+        {
+            randomizeKeyTimer.Dispose();
+            randomizeKeyTimer = null; // 타이머를 삭제한 후 참조를 null로 설정합니다.
+        }
     }
 
     // 상태 딕셔너리를 삭제하는 메서드
