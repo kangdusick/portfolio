@@ -12,30 +12,32 @@ using UnityEngine.AddressableAssets;
 public enum EPrefab
 {
     [Description("HexBlockContainer")]
-	HexBlockContainer = -1625853502,
-	[Description("NormalDestroyParticleEffect")]
-	NormalDestroyParticleEffect = -1120169303,
-	[Description("PopCommon")]
-	PopCommon = 1367575927,
-	[Description("Fairy")]
-	Fairy = 145775554,
-	[Description("DamageText")]
-	DamageText = 92199005,
-	[Description("NeroOrb")]
-	NeroOrb = -889424,
-	[Description("SmallBomb")]
-	SmallBomb = 658824888,
-	[Description("BossSlash")]
-	BossSlash = 1016135199,
-	[Description("BossPhase4")]
-	BossPhase4 = 1515919979,
-	[Description("BossPhase1_3")]
-	BossPhase1_3 = 805187232,
-	[Description("BossPhase5")]
-	BossPhase5 = 1515919978,
-	[Description("HexBlock")]
-	HexBlock = 1671295265,
-	
+    HexBlockContainer = -1625853502,
+    [Description("NormalDestroyParticleEffect")]
+    NormalDestroyParticleEffect = -1120169303,
+    [Description("PopCommon")]
+    PopCommon = 1367575927,
+    [Description("Fairy")]
+    Fairy = 145775554,
+    [Description("DamageText")]
+    DamageText = 92199005,
+    [Description("NeroOrb")]
+    NeroOrb = -889424,
+    [Description("SmallBomb")]
+    SmallBomb = 658824888,
+    [Description("BossSlash")]
+    BossSlash = 1016135199,
+    [Description("BossPhase4")]
+    BossPhase4 = 1515919979,
+    [Description("BossPhase1_3")]
+    BossPhase1_3 = 805187232,
+    [Description("BossPhase5")]
+    BossPhase5 = 1515919978,
+    [Description("ToastMessage")]
+    ToastMessage = -308916051,
+    [Description("HexBlock")]
+    HexBlock = 1671295265,
+
 }
 
 
@@ -84,7 +86,7 @@ public class PoolableManager : MonoBehaviour
             LoadAssetAsync(ePrefab);
         }
     }
-    
+
     // 동기식으로 자산을 로드하는 메서드
     private GameObject LoadAsset(EPrefab ePrefab)
     {
@@ -95,7 +97,7 @@ public class PoolableManager : MonoBehaviour
         }
         return _originPrefabs[ePrefab];
     }
-    
+
     // 비동기식으로 자산을 로드하는 메서드
     private async UniTask<GameObject> LoadAssetAsync(EPrefab ePrefab)
     {
@@ -137,7 +139,7 @@ public class PoolableManager : MonoBehaviour
             return _originPrefabs[ePrefab];
         }
     }
-    
+
     // 프리팹을 인스턴스화하는 메서드들
     public GameObject Instantiate(string ePrefab, Vector3 position = default, Vector3 localScale = default, Quaternion rotation = default, Transform parentTransform = null)
     {
@@ -196,7 +198,7 @@ public class PoolableManager : MonoBehaviour
 
         return go.GetCashComponent<T>();
     }
-   
+
     // 게임 오브젝트 설정 메서드
     private void SetupGameObject(GameObject go, Vector3 position, Quaternion rotation, Vector3 localScale, Transform parentTransform)
     {
@@ -213,7 +215,7 @@ public class PoolableManager : MonoBehaviour
             go.transform.localScale = localScale;
         }
     }
-    
+
     private GameObject GetOrCreateGameObjectCore(EPrefab ePrefab)
     {
         if (!_poolableParent.ContainsKey(ePrefab))
@@ -227,7 +229,7 @@ public class PoolableManager : MonoBehaviour
             do
             {
                 addEprefab = _poolableObjects[ePrefab].Pop();
-                if(addEprefab == null)
+                if (addEprefab == null)
                 {
                     continue;
                 }
@@ -306,7 +308,7 @@ public class PoolableManager : MonoBehaviour
         InitializeNewGameObject(newGameObject, ePrefab);
         return newGameObject;
     }
-    
+
     // 게임 오브젝트를 파괴하는 메서드
     public void Destroy(GameObject gameObj, float delay = 0f, Action onDestroyAction = null)
     {
@@ -321,7 +323,7 @@ public class PoolableManager : MonoBehaviour
             yield return TimeManager.GetWaitForSeconds(delay);
         }
         var addEPrefab = goEprefabFinder[gameObj];
-        if(addEPrefab.isPoolable)
+        if (addEPrefab.isPoolable)
         {
             yield break;
         }
@@ -337,6 +339,10 @@ public class PoolableManager : MonoBehaviour
     private IEnumerator DestroyAfterDelay(AddEPrefab addEPrefab)
     {
         yield return TimeManager.GetWaitForSeconds(120f);
+        if (addEPrefab == null)
+        {
+            yield break;
+        }
         if (addEPrefab.isPoolable)
         {
             var pool = _poolableObjects[addEPrefab.eprefab];
@@ -387,7 +393,7 @@ public class PoolableManager : MonoBehaviour
             {
                 continue;
             }
-            if(addEPrefabs[i].isPoolable)
+            if (addEPrefabs[i].isPoolable)
             {
                 continue;
             }
@@ -398,7 +404,7 @@ public class PoolableManager : MonoBehaviour
         }
         onDestroyAction?.Invoke();
     }
-    
+
     // 자산을 해제하는 메서드
     private void ReleaseAsset(EPrefab ePrefab)
     {
@@ -408,7 +414,7 @@ public class PoolableManager : MonoBehaviour
             _originPrefabs.Remove(ePrefab);
         }
     }
-    
+
     // PoolableManager가 파괴될 때 실행되는 메서드
     private void OnDestroy()
     {
